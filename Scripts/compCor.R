@@ -5,7 +5,7 @@ library("igraph")
 library("minet")
 library(SpiecEasi)
 home <- "~/MAARS_p2/Scripts/"
-folder <- "compositionalCor_v2"
+folder <- "compositionalCor_v3"
 #############################################################################################################
 ###################################### PARAMETERS ###########################################################
 #############################################################################################################
@@ -29,7 +29,7 @@ OTU_O2_tolerance <- read.table(file="/home/gaz/MAARS_p2/MB/OTU_O2_tolerance2.csv
 
 ##parameters for ARGS
 
-cohort <- "CTRL"
+cohort <- "PSO_NON_LES"
 
 inference <- 2 #1 for pearson, 2 for spearman, 3 for mutual information
 
@@ -150,7 +150,7 @@ res <- cbind(Row.Names = rownames(dat0), dat0)
 #res <- dat0
 write.table(res, file = paste0(home,folder,"/SparCC/",cohort,"/raw_dat_",cohort), sep ="\t", quote = FALSE,row.names = FALSE)
 
-system(paste0("sh /home/gaz/MAARS_p2/Scripts/compositionalCor_v2/SparCC/",cohort,"/execSparC.sh")) ## joblib for parralelisation
+system(paste0("sh /home/gaz/MAARS_p2/Scripts/compositionalCor_v3/SparCC/",cohort,"/execSparC.sh")) ## joblib for parralelisation
 #system(paste0("python /home/gaz/Documents/SparCC/SparCC.py ", paste0(home,folder,"/sparCC/",cohort)," -i 1 --cor_file=", paste0("/home/gaz/MAARS_p2/Scripts/compositionalCor/sparCC/",cohort,"_sparcc.txt")))
 
 #system(paste0("python /home/gaz/Documents/SparCC/MakeBootstraps.py ", paste0(home,folder,"/sparCC/",cohort, "_sparcc.txt")," -n 10 -o", paste0("/home/gaz/MAARS_p2/Scripts/compositionalCor/sparCC/Resamplings/boot")))
@@ -243,9 +243,9 @@ intersectListTaxonomy <- grab_taxonomy(uniqueNodes)
 #load modules and fix
 moduleAssignments <- modules
 moduleAssignments$OTU_id <- mapper[match(moduleAssignments$V1, mapper$OTU_new),1]
-moduleAssignments$V2 <- moduleAssignments$V2 + 1
+moduleAssignments$v3 <- moduleAssignments$v3 + 1
 
-moduleAssignments.fixed <- data.frame(node = moduleAssignments$OTU_id, OTU_new =moduleAssignments[,1],  module = moduleAssignments$V2)
+moduleAssignments.fixed <- data.frame(node = moduleAssignments$OTU_id, OTU_new =moduleAssignments[,1],  module = moduleAssignments$v3)
 
 ######asign node attribues
 nodeData <- assign_node_attributes(uniqueNodes) 
