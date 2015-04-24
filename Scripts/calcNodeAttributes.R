@@ -46,4 +46,4 @@ for (i in 1:length(cohorts)){
 
 write.table(nodeDataLists[[1]], file = "/home/gaz/MAARS_p2/Scripts/compositionalCor_v3/SparCC/mainNetworks_calc/AD_LES_nodes.txt", quote = FALSE, sep = "\t", row.names = FALSE)
 write.table(nodeDataLists[[2]], file = "/home/gaz/MAARS_p2/Scripts/compositionalCor_v3/SparCC/mainNetworks_calc/CTRL_nodes.txt", quote = FALSE, sep = "\t", row.names = FALSE)
-write.table(nodeDataLists[[3]], file = "/home/gaz/MAARS_p2/Scripts/compositionalCor_v3/SparCC/mainNetworks_calc/PSOL_nodes.txt", quote = FALSE, sep = "\t", row.names = FALSE)
+write.table(nodeDataLists[[3]], file = "/home/gaz/MAARS_p2/Scripts/compositionalCor_v3/SparCC/mainNetworks_calc/PSO_LES_nodes.txt", quote = FALSE, sep = "\t", row.names = FALSE)
