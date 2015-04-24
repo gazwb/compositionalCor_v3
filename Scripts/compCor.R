@@ -20,7 +20,6 @@ affyTable <- read.table(file="~/MAARS_p2/Affy/MAARS_normTranscriptome_618samples
 otuTable <- read.table("/home/gaz/MAARS_p2/MB/OTU_tableFri_Apr_04_14_23_44_CEST_2014", header = TRUE,row.names = 1, stringsAsFactors = FALSE)
 #otuLabel <- read.table(file="OTU_labelFri_Apr_04_14:23:44_CEST_2014", header = TRUE, fill = TRUE,stringsAsFactors = FALSE)
 #otuTable <- read.table("/home/gaz/MAARS_p2/MB/otu_table_proportions.csv", header = TRUE,row.names = 1, stringsAsFactors = FALSE)
-r
 otuLabel <- read.table(file="otuLabel_exid.txt", header = TRUE, fill = TRUE,stringsAsFactors = FALSE)
 otudescriptionFile <- read.table(file="descriptionFile040414v3.csv", header = TRUE)
 descriptionFile <- read.table(file="descriptionFile040414v3.csv", header = TRUE)
