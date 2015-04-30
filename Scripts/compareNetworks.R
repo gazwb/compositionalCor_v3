@@ -55,7 +55,7 @@ perm.ADL <- diffConectivityPerms[[1]]
 perm.CTRL.ADL <- diffConectivityPerms[[2]]
 perm.PSOL <- diffConectivityPerms[[3]]
 perm.CTRL.PSOL <- diffConectivityPerms[[4]]
-
+netSizes <- c(sum(modStats.ADL[[3]]),sum(modStats.CTRL[[3]]),sum(modStats.PSOL[[3]]))
 diffPerm.ADL <- difConexPermutation(perm.ADL,perm.CTRL.ADL)
 diffPerm.PSOL <- difConexPermutation(perm.PSOL,perm.CTRL.PSOL)
 
@@ -118,8 +118,8 @@ sig.dc.AD$joinName <- factor(sig.dc.AD$joinName, levels=unique(sig.dc.AD$joinNam
 sig.dc.AD$rn <- rownames(sig.dc.AD)
 sig.dc.AD$rn <- factor(sig.dc.AD$rn, levels=unique(sig.dc.AD$rn))
 
-ggplot(data=sig.dc.PSO, aes(x=joinName, y=Diffcvpso, fill=joinName)) + geom_bar(colour="black", stat="identity") + guides(fill=FALSE) + labs(y = "Differential Connectivity", x = "") + ggtitle("PSO v CTRL") + coord_flip()
-ggplot(data=sig.dc.AD, aes(x=rn, y=Diffcvad, fill=joinName)) + geom_bar(colour="black", stat="identity") + guides(fill=FALSE) + scale_x_discrete(labels = sig.dc.AD$joinName)+ labs(y = "Differential Connectivity", x = "") + ggtitle("AD v CTRL") + coord_flip() 
+ggplot(data=sig.dc.PSO, aes(x=joinName, y=Diffcvpso, fill=joinName)) + geom_bar(colour="black", stat="identity",width=.8) + guides(fill=FALSE) + labs(y = "Differential Connectivity", x = "") + ggtitle("PSO v CTRL") + coord_flip() + theme_bw()
+ggplot(data=sig.dc.AD, aes(x=rn, y=Diffcvad, fill=joinName)) + geom_bar(colour="black", stat="identity",width=.8) + guides(fill=FALSE) + scale_x_discrete(labels = sig.dc.AD$joinName)+ labs(y = "Differential Connectivity", x = "") + ggtitle("AD v CTRL") + coord_flip()   + theme_bw()
 
 
 
