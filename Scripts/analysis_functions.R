@@ -22,6 +22,17 @@ defOverlapMatrix <- function(net1, net2){
 	return(ovlpMatrix)
 }
 
+defOverlapMatrix.fx <- function(net1, net2){
+
+	ovlpMatrix <- matrix(ncol = max(unique(net1$module.fixed)), nrow = max(unique(net2$module.fixed)), data = 0)
+	for (i in 1:nrow(ovlpMatrix)){
+		for (j in 1:ncol(ovlpMatrix)){
+			ovlpMatrix[i,j] <- sum(net2[net2$module.fixed==i,1] %in% net1[net1$module.fixed==j,1]) 
+		}
+		
+	}
+	return(ovlpMatrix)
+}
 # define the jaccard matrix 
 
 defJaccardMatrix <- function(net1, net2,ovlpMatrix){
@@ -409,7 +420,7 @@ return(rcIndex)
 calcModuleStats <- function(fx){
 modStats <- list()
 mNodes <- list()
-mdNames <- as.numeric(unique(fx$module.fixed))[order(as.numeric(unique(fx$module.fixed)))]
+mdNames <- 1:max(fx$module.fixed)
 mdNames2 <- mdNames
 mdNames2[mdNames > 100] <- max(mdNames[mdNames < 100]) + 1
 md2 <- mdNames
@@ -607,7 +618,7 @@ moduleOverlapPlot <- function(node.fx){
 
 
 	a <- (ggplot(data =  olm.1.melt, aes(x = X1, y = X2)) + 
-	    geom_tile(aes(fill = value), colour = "white") + scale_fill_gradient(low='white', high='steelblue') + 
+	    geom_tile(aes(fill = value), colour = "white") + scale_fill_gradient(low='white', high='darkred',limits=c(0,1)) + 
 	    scale_x_continuous("CTRL",breaks = 1:dim(olm.1)[1]) + scale_y_continuous("AD",breaks = 1:dim(olm.1)[2]))
 
 	olm.2 <- defOverlapMatrix(net3,net2)
@@ -615,7 +626,7 @@ moduleOverlapPlot <- function(node.fx){
 	olm.2.melt <-  melt(jm2)
 
 	b <- (ggplot(data =  olm.2.melt, aes(x = X1, y = X2)) + 
-	    geom_tile(aes(fill = value), colour = "white") + scale_fill_gradient(low='white', high='steelblue') + 
+	    geom_tile(aes(fill = value), colour = "white") + scale_fill_gradient(low='white', high='darkred',limits=c(0,1)) + 
 	    scale_x_continuous("CTRL", breaks = 1:dim(olm.2)[1]) + scale_y_continuous("PSO", breaks = 1:dim(olm.2)[2]))
 
 
@@ -623,6 +634,82 @@ mp <- multiplot(a,b)
 return(mp)
 }
 
+moduleParallelPlot <- function(node.fx){
+	net1  <- node.fx[[1]]
+	net2  <- node.fx[[2]]
+	net3  <- node.fx[[3]]
+
+
+
+olp.ad_ctrl <- defOverlapMatrix.fx(net1,net2)
+olp.pso_ctrl <-  defOverlapMatrix.fx(net3,net2)
+
+
+# module sizes
+modNodeNames <- c(paste0("A",modStats.ADL[[3]]$module.fixed),paste0("C",modStats.CTRL[[3]]$module.fixed),paste0("P",modStats.PSOL[[3]]$module.fixed))
+modNodeSizes <- c(modStats.ADL[[3]]$noGenes,modStats.CTRL[[3]]$noGenes,modStats.PSOL[[3]]$noGenes)
+
+nodeDataDF <- data.frame(matrix(ncol = 2, nrow = length(modNodeNames), data = 0))
+nodeDataDF[,1] <- modNodeNames
+nodeDataDF[,2] <- modNodeSizes
+colnames(nodeDataDF) <- c("node", "size")
+
+
+adCtrl.olp <- as.data.frame(olp.ad_ctrl)
+adCtrl.olp1 <- adCtrl.olp[,-3]
+colnames(adCtrl.olp1) <- paste0("A",modStats.ADL[[3]]$module.fixed)
+rownames(adCtrl.olp1) <- paste0("C",modStats.CTRL[[3]]$module.fixed)
+adCtrl.olp1$rn <- rownames(adCtrl.olp1)
+melt.ad.df <- melt(adCtrl.olp1,id = "rn")
+
+psoCtrl.olp <- as.data.frame(olp.pso_ctrl)
+colnames(psoCtrl.olp) <- paste0("P",modStats.PSOL[[3]]$module.fixed)
+rownames(psoCtrl.olp) <- paste0("C",modStats.CTRL[[3]]$module.fixed)
+psoCtrl.olp$rn <- rownames(psoCtrl.olp)
+melt.pso.df <- melt(psoCtrl.olp,id = "rn")
+
+boundEdges <- rbind(melt.pso.df,melt.ad.df)
+
+# scaling
+boundEdges$value <- boundEdges$value * 10
+nodeDataDF$size <- nodeDataDF$size * 10
+
+
+write.table(boundEdges , file = "/home/gaz/MAARS_p2/Scripts/compositionalCor_v3/SparCC/randOutput/edges.txt", sep = "\t", quote = FALSE, row.names = FALSE)
+write.table(nodeDataDF, file = "/home/gaz/MAARS_p2/Scripts/compositionalCor_v3/SparCC/randOutput/nodes.txt", sep = "\t", quote = FALSE, row.names = FALSE)
+
+
+melt.df <- melt(olp.pso_ctrl)
+colnames(melt.df) <- c("ctrlnet","psonet", "freq")
+
+
+ alluvial( melt.df[,1:2], freq=melt.df$freq, border=NA, hide = melt.df$freq < quantile(melt.df$freq, .5))
+
+
+ovlpDF <- data.frame(matrix(ncol = 4, nrow = 5, data = 0))
+colnames(ovlpDF) <- c("module", "adnet","ctrlnet", "ad")
+ ovlpDF[,1] <- 1:dim(ovlpDF)[1]
+ ovlpDF[,2] <- diag(olp.ad_ctrl)
+ ovlpDF[,3] <- modStats.CTRL[[3]]
+ ovlpDF[,4] <- diag(olp.pso_ctrl)
+ melt.ovlpDF <- melt(ovlpDF, id = "module")
+
+modStats.CTRL[[3]]
+modStats.ADL[[3]]
+
+
+ alluvial(  melt.ovlpDF[,1:2], freq= melt.ovlpDF$value, border=NA, hide =  melt.ovlpDF$value < quantile( melt.ovlpDF$value, .5))
+
+
+dat <- read.table("/home/gaz/Documents/rand/alluvial.csv", header = TRUE)
+ #melt.ovlpDF <- melt(dat,id = "network")
+
+
+ alluvial(  dat[,1:4], freq= dat$prop, border=NA, hide =  dat$prop < quantile( dat$prop, .5))
+
+
+
+}
 
 # module similarity 
 # use correlation between eigenvectors to show correlation between modules NOT COMPLETE
@@ -761,6 +848,40 @@ for (m in 1:max(modules)){
 	}
 	
 }
+
+}
+# this didnt really work archived
+moduleEigenvectorCorrelation <- function(){
+
+# for a module in a network get expression and calclate eigenvector, put in data frame for correlation
+
+modulePC_lists <- list()
+
+
+for (i in 1:length(node.fx)) {
+
+	nodeOC <- node.fx[[i]]
+	rawOC <- aa[[i]]
+	netRaw.tmp <- rawOC[match(rawOC$nodeName, rownames(rawOC)),]
+	noModules.tmp <- max(nodeOC$module.fixed)
+	networkPcList.tmp <- data.frame(matrix(ncol = noModules.tmp,nrow = dim(rawOC)[2], data =0))
+	modStat.tmp <- calcModuleStats(node.fx[[i]])
+	for (j in 1:noModules.tmp){
+			
+			
+			moduleOfChoice <- modStat.tmp[[2]][[j]]$nodeName
+			if (length(moduleOfChoice) <1) {
+				networkPcList.tmp[,j] <- 0
+			} else {
+			networkPcList.tmp[,j] <- prcomp(t(rawOC[match(moduleOfChoice, rownames(rawOC)),]))$x[,1]
+		}
+	rownames(networkPcList.tmp) <- colnames(rawOC)
+	modulePC_lists[[i]] <- networkPcList.tmp
+	}
+
+}
+ 
+
 
 }
 
