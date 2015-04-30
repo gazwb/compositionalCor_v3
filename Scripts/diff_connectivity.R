@@ -32,7 +32,13 @@ createRandomNetwork <- function(raw.n1, raw.n2){
 	tmp.n1samp <- join.n1.n2[,n1.sampIndex]
 	tmp.n2samp <- join.n1.n2[,n2.sampIndex]
 
-	permTemp <- list(tmp.n1samp, tmp.n2samp)
+	tmp.n1samp.c <- cbind(rownames(tmp.n1samp),tmp.n1samp)
+	tmp.n2samp.c <- cbind(rownames(tmp.n2samp),tmp.n2samp)
+
+	colnames(tmp.n1samp.c)[1] <- "otu_id"
+	colnames(tmp.n2samp.c)[1] <- "otu_id"
+
+	permTemp <- list(tmp.n1samp.c, tmp.n2samp.c)
 return(permTemp)
 }
 
@@ -40,16 +46,20 @@ createPermutations <- function(raw.n1,raw.n2, no.perm, c1, c2){
 
 if ((c1 == "ADL") && (c2 == "CTRL")){
 	folder <- "ADL"
+	cfolder <- "CTRL/ADL"
 } else if ((c1 == "PSOL") && (c2 == "CTRL")){
 	folder <- "PSOL"
+	cfolder <- "CTRL/PSOL"
 } else if ((c1 == "AD") && (c2 == "PSOL")){
 	folder <- "PSOL"
 
-cat("folder")
+}
+
+cat(folder)
 	for (i in 1:no.perm){ 
 		tmpperm <- createRandomNetwork(raw.n1,raw.n2)
-		write.table(tmpperm[[1]], paste0("/home/gaz/MAARS_p2/Scripts/compositionalCor_v2/SparCC/permutations/",folder, "/perm_",i), sep = "\t", quote = FALSE)
-
+		write.table(tmpperm[[1]], paste0("/home/gaz/MAARS_p2/Scripts/compositionalCor_v2/SparCC/permutations/",folder, "/perms/perm_",i), sep = "\t", quote = FALSE,row.names = FALSE)
+		write.table(tmpperm[[2]], paste0("/home/gaz/MAARS_p2/Scripts/compositionalCor_v2/SparCC/permutations/",cfolder, "/perms/perm_",i), sep = "\t", quote = FALSE,row.names = FALSE)
 	} 
 
 }
